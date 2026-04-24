@@ -164,7 +164,7 @@ jobs:
                   TEST_PATH="${{ steps.resolve.outputs.test_path }}"
                   TEST_GREP="${{ steps.resolve-name.outputs.test_grep }}"
 
-                  CMD=( npm run test:e2e:artifacts -- "$TEST_PATH" --project=chromium )
+                  CMD=( npm run test:e2e -- "$TEST_PATH" --project=chromium )
                   if [ -n "$TEST_GREP" ]; then
                     CMD+=( -g "$TEST_GREP" )
                   fi
