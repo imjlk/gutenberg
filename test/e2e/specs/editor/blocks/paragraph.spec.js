@@ -111,7 +111,7 @@ test.describe( 'Paragraph', () => {
 			const boundingBox = await emptyParagraph.boundingBox();
 			await draggingUtils.dragOver( boundingBox.x, boundingBox.y );
 
-			await expect( draggingUtils.dropZone ).toBeVisible();
+			await expect( draggingUtils.dropZone ).not.toBeVisible();
 			await expect( draggingUtils.insertionIndicator ).toBeHidden();
 
 			await page.mouse.up();
