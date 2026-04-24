@@ -55,7 +55,7 @@ const Popup = forwardRef< HTMLDivElement, PopupProps >( function PopoverPopup(
 ) {
 	const { resolvedInitialFocus, popupRef } = useDeprioritizedInitialFocus( {
 		initialFocus,
-		deprioritizedAttribute: CLOSE_ATTR,
+		deprioritizedAttributes: [ CLOSE_ATTR ],
 	} );
 	const mergedPopupRef = useMergeRefs( [ ref, popupRef ] );
 
