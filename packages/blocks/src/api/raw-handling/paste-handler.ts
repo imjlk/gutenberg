@@ -29,7 +29,12 @@ import iframeRemover from './iframe-remover';
 import googleDocsUIDRemover from './google-docs-uid-remover';
 import htmlFormattingRemover from './html-formatting-remover';
 import brRemover from './br-remover';
-import { deepFilterHTML, isPlain, getBlockContentSchema } from './utils';
+import {
+	deepFilterHTML,
+	isPlain,
+	isDecorativeHTML,
+	getBlockContentSchema,
+} from './utils';
 import emptyParagraphRemover from './empty-paragraph-remover';
 import slackParagraphCorrector from './slack-paragraph-corrector';
 import isLatexMathMode from './latex-to-math';
@@ -140,8 +145,12 @@ export function pasteHandler( {
 
 	// Consider plain text if:
 	// * There is a plain text version.
-	// * There is no HTML version, or it has no formatting.
-	const isPlainText = plainText && ( ! HTML || isPlain( HTML ) );
+	// * There is no HTML version, it has no formatting, or it is purely
+	//   decorative markup (e.g. syntax-highlighted output from source-code
+	//   editors like VS Code) whose textual content matches the plain text.
+	const isPlainText =
+		plainText &&
+		( ! HTML || isPlain( HTML ) || isDecorativeHTML( HTML, plainText ) );
 
 	if ( isPlainText && isLatexMathMode( plainText ) ) {
 		return [ createBlock( 'core/math', { latex: plainText } ) ];

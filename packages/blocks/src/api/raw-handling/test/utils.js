@@ -11,7 +11,11 @@ import { registerBlockType, unregisterBlockType } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import { getBlockContentSchemaFromTransforms, isPlain } from '../utils';
+import {
+	getBlockContentSchemaFromTransforms,
+	isPlain,
+	isDecorativeHTML,
+} from '../utils';
 
 describe( 'isPlain', () => {
 	it( 'should return true for plain text', () => {
@@ -59,6 +63,42 @@ describe( 'isPlain', () => {
 		expect( isPlain( '<h1>test</h1>' ) ).toBe( false );
 		expect( isPlain( '<ul><li>test</li></ul>' ) ).toBe( false );
 		expect( isPlain( '<article>test</article>' ) ).toBe( false );
+	} );
+} );
+
+describe( 'isDecorativeHTML', () => {
+	it( 'should return false when either HTML or plain text is empty', () => {
+		expect( isDecorativeHTML( '', 'text' ) ).toBe( false );
+		expect( isDecorativeHTML( '<div>text</div>', '' ) ).toBe( false );
+	} );
+
+	it( 'should return true for VS Code-style syntax-highlighted markdown', () => {
+		const html =
+			'<div style="white-space: pre;">' +
+			'<div><span style="color: #a6e22e;"># Heading</span></div>' +
+			'<br>' +
+			'<div><span>Paragraph</span></div>' +
+			'</div>';
+		const plainText = '# Heading\n\nParagraph';
+		expect( isDecorativeHTML( html, plainText ) ).toBe( true );
+	} );
+
+	it( 'should return false when HTML contains semantic tags', () => {
+		expect( isDecorativeHTML( '<h2>Heading</h2>', '# Heading' ) ).toBe(
+			false
+		);
+		expect( isDecorativeHTML( '<ul><li>item</li></ul>', '- item' ) ).toBe(
+			false
+		);
+		expect(
+			isDecorativeHTML( '<p><strong>bold</strong></p>', '**bold**' )
+		).toBe( false );
+	} );
+
+	it( 'should return false when text content does not match plain text', () => {
+		expect(
+			isDecorativeHTML( '<div><span>different</span></div>', '# Heading' )
+		).toBe( false );
 	} );
 } );
 

@@ -156,6 +156,47 @@ export function isPlain( HTML: string ) {
 	return true;
 }
 
+/**
+ * Checks whether HTML is purely decorative for the given plain text. That is,
+ * the HTML contains only non-semantic wrapper elements (div, span, br) — typical
+ * of source-code editors like VS Code that emit syntax-highlighted HTML — and
+ * its text content matches the plain text. In that case the HTML carries no
+ * structural information beyond what plain text already provides, so callers
+ * can safely fall back to the plain text (e.g. to run Markdown conversion).
+ *
+ * @param HTML      The HTML to check.
+ * @param plainText The accompanying plain text version.
+ *
+ * @return Whether the HTML is decorative-only for the given plain text.
+ */
+export function isDecorativeHTML( HTML: string, plainText: string ): boolean {
+	if ( ! HTML || ! plainText ) {
+		return false;
+	}
+
+	const doc = document.implementation.createHTMLDocument( '' );
+	doc.body.innerHTML = HTML;
+
+	const allowed = new Set( [ 'DIV', 'SPAN', 'BR' ] );
+	const descendants = doc.body.getElementsByTagName( '*' );
+	for ( let i = 0; i < descendants.length; i++ ) {
+		if ( ! allowed.has( descendants.item( i )!.tagName ) ) {
+			return false;
+		}
+	}
+
+	// Strip all whitespace before comparing. The HTML may flatten line breaks
+	// (e.g. each line wrapped in <div> with no inline newlines) while the plain
+	// text preserves them, so whitespace is not a reliable distinguishing
+	// signal here. Comparing only the non-whitespace characters reliably
+	// detects HTML that is purely decorative for the given plain text.
+	const stripWhitespace = ( value: string ) => value.replace( /\s+/g, '' );
+	return (
+		stripWhitespace( doc.body.textContent ?? '' ) ===
+		stripWhitespace( plainText )
+	);
+}
+
 export type { NodeFilterFunction } from './types';
 
 /**
