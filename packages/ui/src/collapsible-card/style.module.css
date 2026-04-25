@@ -65,7 +65,8 @@
 
 @layer wp-ui-compositions {
 	.content-inner {
-		padding-block-start: 0;
+		/* Reserve space for the focus ring of the first child. Hardcoded so it stays consistent across density modes. */
+		padding-block-start: 4px;
 	}
 
 	.header {
